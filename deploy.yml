@@ -1,0 +1,36 @@
+name: Vue Cli TDX project deploy to GitHub Pages
+
+on:
+  workflow_call:
+    inputs:
+      api-domain:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      
+      - name: Install & Build
+        run: |
+          npm install
+          npm run build 
+        env:
+          VUE_APP_API_DOMAIN: ${{ inputs.api-domain }}
+          VUE_APP_AUTH_URL: ${{ vars.VUE_APP_AUTH_URL }}
+          VUE_APP_CLIENT_ID: ${{ vars.VUE_APP_CLIENT_ID }}
+          VUE_APP_CLIENT_SECRECT: ${{ vars.VUE_APP_CLIENT_SECRECT }}
+          
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          branch: gh-pages
+          folder: dist
